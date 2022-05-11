@@ -1,0 +1,7 @@
+keplergl==0.3.2
+numpy==1.19.5
+pandas==0.20.3
+pydeck==0.6.2
+requests==2.22.0
+streamlit==1.9.0
+streamlit_keplergl==0.2.0
