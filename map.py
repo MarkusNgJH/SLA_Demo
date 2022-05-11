@@ -46,31 +46,35 @@ sg_long = 103.8198
 DATA_URL = 'https://api.data.gov.sg/v1/transport/taxi-availability'
 json = requests.get(DATA_URL).json()
 df = pd.DataFrame(json["features"][0]["geometry"]["coordinates"])
-df.columns = ['long', 'lat']
+df['third'] = 0
+df.columns = ['long', 'lat', 'extra']
+df['long'] = pd.to_numeric(df.long, errors='coerce')
+df['lat'] = pd.to_numeric(df.lat, errors='coerce')
 st.write(df.head())
 
 ############################################################
 ############################################################
 ############################################################
 
-from streamlit_keplergl import keplergl_static
-from keplergl import KeplerGl
+# from streamlit_keplergl import keplergl_static
+# from keplergl import KeplerGl
 
-st.title('KeplerGl Maps')
-map_1 = KeplerGl(data={'Data': df})
-config = {
-'version': 'v1',
-'config': {
-    'mapState': {
-        'latitude': sg_lat,
-        'longitude': sg_long,
-        'zoom': 10
-    	}
-	}
-}
+# st.title('KeplerGl Maps')
+# map_1 = KeplerGl(data={'Data': df})
+# config = {
+# 'version': 'v1',
+# 'config': {
+#     'mapState': {
+#         'latitude': sg_lat,
+#         'longitude': sg_long,
+#         'zoom': 10
+#     	}
+# 	}
+# }
 
-map_1.config = config
-keplergl_static(map_1)
+# map_1.config = config
+# map_1.add_data(data=df, name="extra")
+# keplergl_static(map_1)
 
 ############################################################
 ############################################################
