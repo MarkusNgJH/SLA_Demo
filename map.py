@@ -4,13 +4,6 @@ import numpy as np
 import requests
 from random import randint, random
 
-
-st.title('Lease Prediction')
-
-DATE_COLUMN = 'date/time'
-DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
-         'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
-
 @st.cache
 def load_data(nrows):
     DATA_URL = 'https://api.data.gov.sg/v1/transport/taxi-availability'
@@ -19,31 +12,53 @@ def load_data(nrows):
     df.columns = ['long', 'lat']
     return df[:nrows]
 
+def predict_lease():
+    predicted_lease = randint(100000,1000000)
+    format_predicted_lease = "$ " + "{:,}".format(predicted_lease)
+    lease_change = round(random(),1)
+    format_lease_change = str(lease_change) + " %"
+    return (format_predicted_lease, format_lease_change)
+
+def validate_postal_code(postal_code):
+    if len(postal_code) == 6:
+        return True
+    else:
+        return False
+
+############################################################
+############################################################
+
+DATE_COLUMN = 'date/time'
+DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
+         'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
+
 df = load_data(10000)
-
-############################################################
-############################################################
-############################################################
-
 sg_lat = 1.3521
 sg_long = 103.8198
+
+############################################################
+############################################################
+
+st.title('Lease Prediction')
 
 st.header("Explore Lease Prices Here")
 st.dataframe(df)
 
 st.header("Lease Prices Prediction")
 with st.expander("Input Property Details for Prediction"):
-    location = st.text_input('Postal Code?')
-    bdrm = st.selectbox('Number of Bedroom?',('1Bdrm', '2Bdrm', '3Bdrm', '4Bdrm', '5Bdrm'))
-    prop_type = st.selectbox('Property Type?',('HDB', 'Condo', 'Landed'))
-    age = st.number_input("Age of Property?", 0, 50)
-    
-clicked = st.button("Run Prediction")
-if clicked:
-    st.write('Prediction Completed')
-    predicted = "$ " + "{:,}".format(randint(100000,1000000))
-    delta = str(round(random(),1)) + " %"
-    st.metric('Predicted Lease', predicted, delta = delta, delta_color="normal")
+    with st.form(key="predict_form"):
+        postal_code = st.text_input('Postal Code?', value = "000000")
+        bdrm = st.selectbox('Number of Bedroom?',('1Bdrm', '2Bdrm', '3Bdrm', '4Bdrm', '5Bdrm'))
+        prop_type = st.selectbox('Property Type?',('HDB', 'Condo', 'Landed'))
+        age = st.number_input("Age of Property?", 0, 50)
+        submit_button = st.form_submit_button("Predict")
+        if submit_button and validate_postal_code(postal_code):
+            st.write('Prediction Completed')
+            predicted, delta = predict_lease()
+            st.metric('Predicted Lease', predicted, delta = delta, delta_color="normal")
+        elif submit_button and not validate_postal_code(postal_code):
+            st.error("Please Check Input")
+            
 
 ############################################################
 ############################################################
