@@ -6,13 +6,16 @@ from random import randint, random
 
 @st.cache
 def load_data(nrows):
+    # Insert Code for Actual Data Source Here
     DATA_URL = 'https://api.data.gov.sg/v1/transport/taxi-availability'
     json = requests.get(DATA_URL).json()
     df = pd.DataFrame(json["features"][0]["geometry"]["coordinates"])
-    df.columns = ['long', 'lat']
+    df['count'] = 1
+    df.columns = ['long', 'lat', 'count']
     return df[:nrows]
 
 def predict_lease():
+    # Insert Code for Price Prediction Model here. Or Link from external file
     predicted_lease = randint(100000,1000000)
     format_predicted_lease = "$ " + "{:,}".format(predicted_lease)
     lease_change = round(random(),1)
@@ -20,6 +23,7 @@ def predict_lease():
     return (format_predicted_lease, format_lease_change)
 
 def validate_postal_code(postal_code):
+    # Insert Code for user input validation
     if len(postal_code) == 6:
         return True
     else:
@@ -39,6 +43,7 @@ sg_long = 103.8198
 ############################################################
 ############################################################
 
+# Main Body of Dashboard
 st.title('Lease Prediction')
 
 st.header("Explore Lease Prices Here")
@@ -63,21 +68,26 @@ with st.expander("Input Property Details for Prediction"):
 ############################################################
 ############################################################
 ############################################################
+
+# Main Body of Geospatial Maps
 import pydeck as pdk
 st.header("Look at Map Lease Prices")
+
 st.pydeck_chart(pdk.Deck(
-     initial_view_state=pdk.ViewState(
-        latitude= sg_lat,
-        longitude= sg_long,
-        zoom= 10
-     ),
+    initial_view_state=pdk.ViewState(latitude= sg_lat,longitude= sg_long,zoom= 10),
     layers = [pdk.Layer(
         'ScreenGridLayer',
         df,
         get_position=['long', 'lat'],
         cell_size_pixels=20,
         pickable=True,
-        auto_highlight=True     
+        auto_highlight=True,
+        get_weight="count"
         ) 
-    ]
+    ],
+    # Tooltips works for HeatMap but not for ScreenGridLayer
+    tooltip = {
+    "style": {"color": "white"},
+    "html": "Taxi Count: {colorValue}" 
+    }
  ))
