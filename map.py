@@ -76,7 +76,7 @@ st.header("Look at Map Lease Prices")
 st.pydeck_chart(pdk.Deck(
     initial_view_state=pdk.ViewState(latitude= sg_lat,longitude= sg_long,zoom= 10),
     layers = [pdk.Layer(
-        'ScreenGridLayer',
+        'GridLayer',
         df,
         get_position=['long', 'lat'],
         cell_size_pixels=20,
